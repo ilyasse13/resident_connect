@@ -44,7 +44,7 @@ const Techniciens = () => {
   useEffect(() => {
     const fetchTech = async () => {
       try {
-        const response = await axiosClient.get('/technicians');
+        const response = await axiosClient.get(`/technicians/${user.residence_id}`);
         setTechs(response.data);
         setLoading(false);
       } catch (error) {

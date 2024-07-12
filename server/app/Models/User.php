@@ -17,7 +17,30 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $fillable = [
+        'user_id', 'Nom', 'Prenom', 'Username', 'Password', 'Type', 'residence_id', 'num_app', 'num_imm', 'image',
+    ];
 
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id'; // No need to specify this if you use the default 'id'
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+
+    /**
+     * The data type of the primary key.
+     *
+     * @var string
+     */
+    protected $keyType = 'int'; // No need to specify this if you use the default 'int'
 
     /**
      * The attributes that should be hidden for serialization.
@@ -25,8 +48,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
     /**
@@ -38,22 +60,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    protected $primaryKey = 'user_id';
-
-    protected $fillable = [
-        'user_id', 'Nom', 'Prenom', 'Username', 'Password', 'Type', 'residence_id','num_app','num_imm','image',
-    ];
 
     public function residence()
     {
         return $this->belongsTo(Residence::class, 'session_id', 'id_session');
     }
+
     public function likes()
     {
         return $this->hasMany(Like::class);
     }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
     }
 }
+

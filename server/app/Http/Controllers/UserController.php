@@ -25,19 +25,6 @@ class UserController extends Controller
         }
     }
 
-    public function show(String $id)
-    {
-        try {
-            $user = User::find($id);
-
-            if (!$user) {
-                return response()->json(['message' => 'User not found.'], 404);
-            }
-            return response()->json($user, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to retrieve user.'], 500);
-        }
-    }  
 
     public function store (HabitantRequest $request)
     {

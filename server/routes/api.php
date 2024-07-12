@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -28,5 +30,11 @@ Route::middleware('auth:sanctum')->post('/createUser',[UserController::class,'st
 Route::middleware('auth:sanctum')->delete('/deleteUser/{Username}',[UserController::class,'destroy']);
 Route::middleware('auth:sanctum')->get('/metiers',[TechnicianController::class,'metierindex']);
 Route::middleware('auth:sanctum')->post('/createtech',[TechnicianController::class,'store']);
-Route::middleware('auth:sanctum')->get('/technicians',[TechnicianController::class,'index']);
+Route::middleware('auth:sanctum')->get('/technicians/{residence_id}',[TechnicianController::class,'index']);
 Route::middleware('auth:sanctum')->delete('/deletetech/{id}',[TechnicianController::class,'destroy']);
+Route::middleware('auth:sanctum')->get('/payements/{residence_id}',[PaymentController::class,'getPaymentsForResidence']);
+Route::middleware('auth:sanctum')->post('/addPayment',[PaymentController::class,'store']);
+Route::middleware('auth:sanctum')->delete('/deletePayement/{id_pay}',[PaymentController::class,'destroy']);
+Route::middleware('auth:sanctum')->get('/currentuser/{id}',[ProfileController::class,'currentuser']);
+Route::middleware('auth:sanctum')->patch('/updateimage/{id}',[ProfileController::class,'updateImage']);
+Route::middleware('auth:sanctum')->delete('/deleteimage/{id}',[ProfileController::class,'deleteImage']);

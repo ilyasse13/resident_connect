@@ -16,7 +16,12 @@ const Members = () => {
     const fetchUsers = async () => {
       try {
         const response = await axiosClient.get(`/users/${user.residence_id}`);
-        setUsers(response.data);
+        const updatedusers = response.data.map(use => ({
+          ...use,
+          image: use.image ? `http://127.0.0.1:8000/storage/${use.image}` : null
+        }));
+        
+        setUsers(updatedusers);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -116,7 +121,7 @@ const Members = () => {
                <div className="flex items-center">
                <div className="flex-shrink-0 h-10 w-10">
       {usere.image ? (
-        <img className="h-10 w-10 rounded-full" src={image} alt={`${firstName} ${lastName}`} />
+        <img className="h-10 w-10 rounded-full" src={usere.image} alt={`${usere.Nom} ${user.Prenom}`} />
       ) : (
         <span className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold text-xl" style={{fontFamily:"monospace"}}>
         {`${usere.Nom.charAt(0)}${usere.Prenom.charAt(0)}`}
@@ -162,6 +167,7 @@ Delete
      </div>
      </div>
      </section>
+     
     </>
 
   )

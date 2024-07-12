@@ -22,6 +22,7 @@ const CreateMember = () => {
       try {
         const response = await axiosClient.get(`/users/${user.residence_id}`);
         setMembers(response.data);
+        console.log(Members)
       } catch (error) {
         console.error('Error fetching users:', error);
         
@@ -29,7 +30,7 @@ const CreateMember = () => {
     };
 
     fetchUsers();
-  }, [user.residence_id]);
+  }, []);
 
   const validateForm = () => {
     const errors = {};
@@ -76,9 +77,10 @@ const CreateMember = () => {
     if (!validateForm()) {
       return;
     }
-    for(var i=0;i<=Members.length;i++){
+    for(var i=0;i<=Members.length-1;i++){
       if(Members[i].num_app==apartment_numberRef.current.value && Members[i].num_imm==building_numberRef.current.value){
         setExiError('There is another member with the same apartment and building number.')
+        return;
       }
     }
     const payload = {
@@ -89,7 +91,7 @@ const CreateMember = () => {
       apartment_number: apartment_numberRef.current.value,
       residence_id: user.residence_id
     };
-
+console.log(payload)
     try {
       const { data } = await axiosClient.post("/createUser", payload);
       navigate('/Members', { state: { message: 'New user created successfully' } });
@@ -118,8 +120,9 @@ const CreateMember = () => {
                 </div>
 
                 <div className="lg:col-span-2">
+                {exiError && <p className="text-red-600 mb-3">{exiError}</p>}
       <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 md:grid-cols-5">
-      {exiError && <p className="text-red-600 mb-3">{exiError}</p>}
+      
         <div className="md:col-span-5">
           <label>CIN</label>
           <input

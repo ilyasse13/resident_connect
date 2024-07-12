@@ -27,6 +27,8 @@ import Techniciens from "../pages/AppViews/Techniciens";
 import Messages from "../pages/AppViews/Messages";
 import CreateMember from "../pages/AppViews/CreateMember";
 import AddTech from "../pages/AppViews/AddTech";
+import UpdatePayements from "../pages/AppViews/UpdatePayements";
+
 
 const router = createBrowserRouter([
     {
@@ -132,6 +134,10 @@ const router = createBrowserRouter([
         {
           path:'AddTech',
           element:<AddTech/>
+        },
+        {
+          path:'UpdatePayments',
+          element:<UpdatePayements/>
         }
       ]
       
@@ -145,5 +151,6 @@ const router = createBrowserRouter([
 
    
   ]);
+  
   
   export default router;

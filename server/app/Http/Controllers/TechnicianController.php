@@ -19,10 +19,10 @@ class TechnicianController extends Controller
         }
     }
 
-    public function index()
+    public function index($residence_id)
     {
         try{
-            $technicians=Technician::all();
+            $technicians=Technician::where('residence_id',$residence_id)->get();
             return response()->json($technicians, 200);
         }catch (\Exception $e) {
             return response()->json(['message' => 'Server error!'], 500);
@@ -64,5 +64,4 @@ public function destroy($id){
         return response()->json(['message' => 'Failed to delete technician.'], 500);
     }
 }
-
 }
