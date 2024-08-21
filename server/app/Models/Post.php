@@ -16,8 +16,9 @@ class Post extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'poster_id', 'user_id');
+        return $this->belongsTo(User::class, 'poster_id', 'id');
     }
+    
 
     public function session()
     {

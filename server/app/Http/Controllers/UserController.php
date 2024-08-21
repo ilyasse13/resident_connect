@@ -8,6 +8,7 @@ use App\Services\ProfileImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -71,5 +72,60 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to delete user.'], 500);
         }
+    }
+    public function updateUser(Request $request, $id)
+    {
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'cin' => ['required', 'regex:/^[A-Z]{2}\d{6}$/'],
+            'firstName' => ['required', 'regex:/^[A-Z][a-zA-Z]*$/'],
+            'lastName' => ['required', 'regex:/^[A-Z][a-zA-Z]*$/'],
+            'username' => ['required', 'string', 'max:255'],
+            'oldPassword' => ['nullable', 'string'],
+            'newPassword' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        $user = User::findOrFail($id);
+    
+        // Check if the username is available
+        if (User::where('username', $request->input('username'))->where('id', '!=', $id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Username is already taken.'
+            ], 400);
+        }
+    
+        // Check if old password matches
+        if ($request->filled('oldPassword') && !Hash::check($request->input('oldPassword'), $user->Password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Old password is incorrect.'
+            ], 400);
+        }
+    
+        // Update the user data
+        $user->user_id = $request->input('cin');
+        $user->Prenom = $request->input('firstName');
+        $user->Nom = $request->input('lastName');
+        $user->Username = $request->input('username');
+    
+        if ($request->filled('newPassword')) {
+            $user->Password = Hash::make($request->input('newPassword'));
+        }
+    
+        $user->save();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User information updated successfully.',
+            'user'=>$user
+        ]);
     }
 }

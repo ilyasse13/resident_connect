@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\UserController;
@@ -38,3 +40,9 @@ Route::middleware('auth:sanctum')->delete('/deletePayement/{id_pay}',[PaymentCon
 Route::middleware('auth:sanctum')->get('/currentuser/{id}',[ProfileController::class,'currentuser']);
 Route::middleware('auth:sanctum')->patch('/updateimage/{id}',[ProfileController::class,'updateImage']);
 Route::middleware('auth:sanctum')->delete('/deleteimage/{id}',[ProfileController::class,'deleteImage']);
+Route::middleware('auth:sanctum')->post('/addPost',[PostController::class,'store']);
+Route::middleware('auth:sanctum')->get('/posts/{residence_id}',[PostController::class,'index']);
+Route::middleware('auth:sanctum')->get('/comments/{postId}',[CommentController::class,'index']);
+Route::middleware('auth:sanctum')->post('/addComment',[CommentController::class,'store']);
+Route::middleware('auth:sanctum')->get('/userposts/{userId}',[PostController::class,'getUserPosts']);
+Route::middleware('auth:sanctum')->put('/updateUser/{userId}',[UserController::class,'updateUser']);

@@ -8,7 +8,7 @@ import Security from "../pages/GetStarted/Security";
 import Faq from "../pages/GetStarted/Faq";
 import Tutorial from "../pages/GetStarted/Tutorial";
 import NotFound from "../pages/GetStarted/NotFound";
-import AdminLayout from "../layouts/AdminLayout";
+
 import SignUp from "../pages/Forms/SignUp";
 import Why from "../pages/GetStarted/Why";
 import Features from "../pages/GetStarted/Features";
@@ -28,6 +28,7 @@ import Messages from "../pages/AppViews/Messages";
 import CreateMember from "../pages/AppViews/CreateMember";
 import AddTech from "../pages/AppViews/AddTech";
 import UpdatePayements from "../pages/AppViews/UpdatePayements";
+import UpdateInfo from "../pages/AppViews/UpdateInfo";
 
 
 const router = createBrowserRouter([
@@ -138,6 +139,10 @@ const router = createBrowserRouter([
         {
           path:'UpdatePayments',
           element:<UpdatePayements/>
+        },
+        {
+          path:'/update-Info',
+          element:<UpdateInfo/>
         }
       ]
       

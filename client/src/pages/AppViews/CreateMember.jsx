@@ -1,36 +1,37 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { useStateContext } from '../../contexts/ContextProvider'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
-import axiosClient from '../../api/axios'
+import React, { useEffect, useRef, useState } from 'react';
+import { useStateContext } from '../../contexts/ContextProvider';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import axiosClient from '../../api/axios';
 
 const CreateMember = () => {
-  const { user } = useStateContext()
-  if (!user.Type === 'Admin') {
-    return <Navigate to='/Members' />
+  const { user } = useStateContext();
+  if (user.Type !== 'Admin') {
+    return <Navigate to='/Members' />;
   }
-  const [Members,setMembers] = useState([])
+
+  const [Members, setMembers] = useState([]);
   const navigate = useNavigate();
   const CINRef = useRef();
   const first_nameRef = useRef();
   const last_nameRef = useRef();
-  const building_numberRef = useRef()
-  const apartment_numberRef = useRef()
-  const [exiError,setExiError] = useState('')
+  const building_numberRef = useRef();
+  const apartment_numberRef = useRef();
+  const [exiError, setExiError] = useState('');
   const [errors, setErrors] = useState({});
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axiosClient.get(`/users/${user.residence_id}`);
         setMembers(response.data);
-        console.log(Members)
       } catch (error) {
         console.error('Error fetching users:', error);
-        
       }
     };
 
     fetchUsers();
-  }, []);
+    console.log(Members)
+   }, [user.residence_id]);
 
   const validateForm = () => {
     const errors = {};
@@ -39,7 +40,7 @@ const CreateMember = () => {
     // CIN validation
     const CINRegex = /^[A-Z]{2}\d{6}$/;
     if (!CINRef.current.value || !CINRegex.test(CINRef.current.value)) {
-      errors.CIN = 'CIN should contain two big letters followed by four numbers';
+      errors.CIN = 'CIN should contain two uppercase letters followed by six numbers';
       isValid = false;
     }
 
@@ -71,18 +72,22 @@ const CreateMember = () => {
     return isValid;
   };
 
-  const Submit = async (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
 
     if (!validateForm()) {
       return;
     }
-    for(var i=0;i<=Members.length-1;i++){
-      if(Members[i].num_app==apartment_numberRef.current.value && Members[i].num_imm==building_numberRef.current.value){
-        setExiError('There is another member with the same apartment and building number.')
-        return;
-      }
+    
+    if (Members.some(member => 
+      Number(member.num_app) === Number(apartment_numberRef.current.value.trim()) && 
+      Number(member.num_imm) === Number(building_numberRef.current.value.trim())
+    )) {
+      setExiError('There is another member with the same apartment and building number.');
+      return;
     }
+    
+
     const payload = {
       CIN: CINRef.current.value,
       first_name: first_nameRef.current.value,
@@ -91,9 +96,9 @@ const CreateMember = () => {
       apartment_number: apartment_numberRef.current.value,
       residence_id: user.residence_id
     };
-console.log(payload)
+
     try {
-      const { data } = await axiosClient.post("/createUser", payload);
+      await axiosClient.post("/createUser", payload);
       navigate('/Members', { state: { message: 'New user created successfully' } });
     } catch (error) {
       if (error.response && error.response.status === 422) {
@@ -102,125 +107,89 @@ console.log(payload)
         console.error('An error occurred:', error);
       }
     }
-  }
+  };
 
   return (
-    <>
-
-      <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center">
-        <div className="container max-w-screen-lg mx-auto">
-          <div>
-
-
-            <div className="bg-white rounded shadow-lg p-4 px-4 md:p-8 mb-6">
-              <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-3">
-                <div className="text-gray-600">
-                  <p className="font-medium text-lg">Personal Details</p>
-                  <p>Please fill out all the fields.</p>
-                </div>
-
-                <div className="lg:col-span-2">
-                {exiError && <p className="text-red-600 mb-3">{exiError}</p>}
-      <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 md:grid-cols-5">
-      
-        <div className="md:col-span-5">
-          <label>CIN</label>
-          <input
-            type="text"
-            placeholder="AA123456"
-            ref={CINRef}
-            name="CIN"
-            id="CIN"
-            className={`h-10 border focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 rounded px-4 w-full bg-gray-50 ${
-              errors.CIN && 'border-red-500'
-            }`}
-          />
-          {errors.CIN && <p className="text-red-500">{errors.CIN}</p>}
+    <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center">
+      <div className="container max-w-screen-lg mx-auto bg-white rounded shadow-lg p-4 md:p-8">
+        <h2 className="text-2xl font-bold mb-6">Create Member</h2>
+        
+        <div className="mb-6">
+          <p className="text-sm text-gray-700">
+            <strong>Note:</strong> The first name and last name should start with a capital letter. 
+            By default, the username will be <strong>Firstname.Lastname</strong> and the password will be <strong>FirstnameLastname</strong>.
+          </p>
         </div>
-        <div className="md:col-span-5">
-          <label>
-            First name
-            {errors.first_name && <span className="text-red-500 ml-1">{errors.first_name}</span>}
-          </label>
-          <input
-            type="text"
-            placeholder="First name"
-            ref={first_nameRef}
-            name="firstname"
-            id="firstname"
-            className={`h-10 border focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 rounded px-4 w-full bg-gray-50 ${
-              errors.first_name && 'border-red-500'
-            }`}
-          />
-        </div>
-        <div className="md:col-span-5">
-          <label>
-            Last name
-            {errors.last_name && <span className="text-red-500 ml-1">{errors.last_name}</span>}
-          </label>
-          <input
-            type="text"
-            name="Lastname"
-            placeholder="Last name"
-            ref={last_nameRef}
-            id="Lastname"
-            className={`h-10 border focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 rounded px-4 w-full bg-gray-50 ${
-              errors.last_name && 'border-red-500'
-            }`}
-          />
-        </div>
-
-        <div className="md:col-span-5">
-          <label>Apartment Number</label>
-          <input
-            type="number"
-            name="NBuilding"
-            id="NAppart"
-            ref={apartment_numberRef}
-            className={`h-10 border focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 rounded px-4 w-full bg-gray-50 ${
-              errors.apartment_number && 'border-red-500'
-            }`}
-            placeholder=""
-          />
-          {errors.apartment_number && <p className="text-red-500">{errors.apartment_number}</p>}
-        </div>
-
-        <div className="md:col-span-5">
-          <label>Building Number</label>
-          <input
-            type="number"
-            name="NBuilding"
-            id="NBuilding"
-            ref={building_numberRef}
-            className={`h-10 border focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 rounded px-4 w-full bg-gray-50 ${
-              errors.building_number && 'border-red-500'
-            }`}
-            placeholder=""
-          />
-          {errors.building_number && <p className="text-red-500">{errors.building_number}</p>}
-        </div>
-
-        <div className="md:col-span-5 text-right">
-  <div className="inline-flex items-end space-x-2">
-    <button onClick={Submit} className="bg-green-500 hover:bg-green-700 transition duration-300 ease-in-out text-white font-bold py-2 px-4 rounded">
-      Create
-    </button>
-    <Link to='/Members' className="bg-red-500 hover:bg-red-600 transition duration-300 ease-in-out text-white font-bold py-2 px-4 rounded">
-      Cancel
-    </Link>
-  </div>
-</div>
-      </div>
-    </div>
-              </div>
+        
+        {exiError && <p className="text-red-600 mb-4">{exiError}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-1">
+            <div>
+              <label htmlFor="CIN" className="block font-medium">CIN</label>
+              <input
+                type="text"
+                id="CIN"
+                ref={CINRef}
+                placeholder="AA123456"
+                className={`h-10 border rounded px-4 w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 ${errors.CIN && 'border-red-500'}`}
+              />
+              {errors.CIN && <p className="text-red-500">{errors.CIN}</p>}
+            </div>
+            <div>
+              <label htmlFor="first_name" className="block font-medium">First Name</label>
+              <input
+                type="text"
+                id="first_name"
+                ref={first_nameRef}
+                placeholder="First Name"
+                className={`h-10 border rounded px-4 w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 ${errors.first_name && 'border-red-500'}`}
+              />
+              {errors.first_name && <p className="text-red-500">{errors.first_name}</p>}
+            </div>
+            <div>
+              <label htmlFor="last_name" className="block font-medium">Last Name</label>
+              <input
+                type="text"
+                id="last_name"
+                ref={last_nameRef}
+                placeholder="Last Name"
+                className={`h-10 border rounded px-4 w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 ${errors.last_name && 'border-red-500'}`}
+              />
+              {errors.last_name && <p className="text-red-500">{errors.last_name}</p>}
+            </div>
+            <div>
+              <label htmlFor="apartment_number" className="block font-medium">Apartment Number</label>
+              <input
+                type="number"
+                id="apartment_number"
+                ref={apartment_numberRef}
+                className={`h-10 border rounded px-4 w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 ${errors.apartment_number && 'border-red-500'}`}
+              />
+              {errors.apartment_number && <p className="text-red-500">{errors.apartment_number}</p>}
+            </div>
+            <div>
+              <label htmlFor="building_number" className="block font-medium">Building Number</label>
+              <input
+                type="number"
+                id="building_number"
+                ref={building_numberRef}
+                className={`h-10 border rounded px-4 w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-600 mt-1 ${errors.building_number && 'border-red-500'}`}
+              />
+              {errors.building_number && <p className="text-red-500">{errors.building_number}</p>}
             </div>
           </div>
-
-
-        </div>
+          <div className="flex justify-end space-x-4">
+            <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+              Create
+            </button>
+            <Link to="/Members" className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+              Cancel
+            </Link>
+          </div>
+        </form>
       </div>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default CreateMember
+export default CreateMember;
